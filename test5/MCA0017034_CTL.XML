@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Root>
+    <!--注册下发短信 -->
+    <Transaction code="MCA0017034" log_switch="1">
+        <DynSentence name="QRY_URMTPINF_MBLID"> <!-- 根据手机登陆号查询用户登陆密码是否已经设置 -->
+            <Sentence> 
+              SELECT USR_NO,BIND_FLAG,LOG_PWD,PAY_PWD FROM URMTPINF WHERE MBL_NO= ? 
+            </Sentence>
+            <Fields>MBL_NO|</Fields>
+        </DynSentence>
+        <!-- 查询此手机号码是否被绑定-->
+        <DynSentence name="QRY_BYMBLNO_URMTPINF">
+            <Sentence>
+                SELECT * FROM (SELECT BIND_FLAG
+                FROM URMTPINF WHERE MBL_NO = ? )
+                WHERE ROWNUM='1'             
+            </Sentence>
+            <Fields>PHONENUM|</Fields>
+        </DynSentence>
+        <FlowCtrl>
+            <Exec func="PUB:DumpETF" />
+            <Exec func="PUB:GWASetMsg">
+                <Arg name="MsgCd" value="URM00000" />
+                <Arg name="MsgDat" value="交易成功" />
+            </Exec>
+            <!-- 获取接收短信的手机号码 -->
+            <Exec func="WEB:GetSession">
+                <Arg name="ObjNam" value="REGISTER_MBL" />
+                <Arg name="MBL_NO_ID" value="MBL_NO_ID" /><!--用户注册号码 -->
+            </Exec>
+            <If condition="~RetCod=2">
+                <Exec func="PUB:GWASetMsg">
+                    <Arg name="MsgCd" value="URM99999" />
+                    <Arg name="MsgDat" value="系统错误" />
+                </Exec>
+                <Return />
+            </If>
+            
+            <!--  Exec func="WEB:GetSession">
+                <Arg name="ObjNam" value="TEMP" />
+                <Arg name="TOKEN1" value="TOKEN" />
+            </Exec>
+            <If condition="AND(IS_EQUAL_STRING($TOKEN1,$TOKEN),NOT(ISNULL($TOKEN)))">
+                <Exec func="WEB:RemoveSession" error="IGNORE">
+                  <Arg name="ObjNam" value="TEMP"/>
+                  <Arg name="TOKEN" value="TOKEN"/>
+                </Exec>        
+            </If>
+            <Else>
+                <Exec func="PUB:GWASetMsg">
+                    <Arg name="MsgCd" value="URM70340" />
+                    <Arg name="MsgDat" value="请勿重复提交" />
+                </Exec>
+                <Return /> 
+            </Else-->
+            <Set>PHONENUM=$MBL_NO_ID</Set>
+            <Set>MBL_NO=$PHONENUM</Set>
+            <Set>SRN=PAY_REGION</Set>
+            
+            <!-- 下发短信 -->
+            <Exec func="PUB:CallThirdService">
+                <Arg name="ObjSvr" value="OURMPUB1" />
+                <Arg name="HTxnCd" value="0010101" />
+                <Arg name="SRN" value="$SRN" />
+            </Exec>
+            <If condition="~RetCod!=0">
+                <Exec func="PUB:GWASetMsg">
+                    <Arg name="MsgCd" value="URM99999" />
+                    <Arg name="MsgDat" value="系统错误" />
+                </Exec>
+                <Return />
+            </If>
+            <If condition="NOT(IS_SUCC($GWA.MSG_CD))">
+                <Exec func="PUB:GWASetMsg">
+                    <Arg name="MsgCd" value="$GWA.MSG_CD" />
+                </Exec>
+                <Return />
+            </If>
+            <!-- 设置返回AJAX -->
+            <Set>RSP_AJX=TRUE</Set>  <!-- 设置返回重定向 -->
+
+        </FlowCtrl>
+    </Transaction>
+</Root>   
