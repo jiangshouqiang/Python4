@@ -24,6 +24,11 @@ class DefaultSaxHandler(object):
                 tomorrow['text'] = attrs['text']
                 tomorrow['low']  = attrs['low']
                 tomorrow['high'] = attrs['high']
+    def end_element(self, name):
+        print('sax:end_element: %s' % name)
+
+    def char_data(self, text):
+        print('sax:char_data: %s' % text)
 
 xml = r'''<?xml version="1.0" encoding="utf-8"?>
 <rss xmlns:yweather="http://xml.weather.yahoo.com/ns/rss/1.0" xmlns:geo="http://www.w3.org/2003/01/geo/wgs84_pos#" version="2.0">
@@ -77,9 +82,11 @@ http://us.rd.yahoo.com/dailynews/rss/weather/Beijing__CN/*http://weather.yahoo.c
 pasr = DefaultSaxHandler()
 parser = ParserCreate()
 parser.StartElementHandler = pasr.start_element
-f = request.urlopen('http://weather.yahooapis.com/forecastrss?u=c&w=2142699')
-xml1 = f.read()
-parser.Parse(xml1)
+parser.EndElementHandler = pasr.end_element
+parser.CharacterDataHandler = pasr.char_data
+# f = request.urlopen('http://weather.yahooapis.com/forecastrss?u=c&w=2142699')
+# xml1 = f.read()
+parser.Parse(xml)
 content['today'] = today
 content['tomorrow'] = tomorrow
 

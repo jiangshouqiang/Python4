@@ -12,7 +12,7 @@ def run_thread(n):
     local_thread.balance = 0
     for i in range(10000000):
         change_it(n)
-    print(local_thread.balance)
+    print("local_thread.balance=",local_thread.balance)
         # lock.acquire()
         # try:
         #     change_it(n)
