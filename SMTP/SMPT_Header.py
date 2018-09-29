@@ -8,10 +8,10 @@ def _format_addr(s):
     name,addr = parseaddr(s)
     return formataddr((Header(name,'utf-8').encode(),addr))
 
-from_addr = 'jiangshouqiang@symdata.cn' #input("Form:")
-password = 'JSQ1998'#input("password:")
+from_addr = 'pythonchaintest@126.com' #input("Form:")
+password = 'j123123'#input("password:")
 to_addr = '284923424@qq.com'#input("To :")
-smtp_server = 'smtp.ym.163.com'#input("SMTP server :")
+smtp_server = 'smtp.126.com'#input("SMTP server :")
 
 msg = MIMEText('Hello , send by python ...','plain','utf-8 ')
 msg['From'] = _format_addr('Python 爱好者<%s>' % to_addr)

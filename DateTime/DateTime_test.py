@@ -42,8 +42,8 @@ now = datetime.now()
 print("now = ",now)
 today_date    = now.strftime('%a, %b %d %H:%M')
 print("today_date = ",today_date)
-tomorrow_date = datetime.strptime(str(now+timedelta(days=1)),'%a')
-
 
 # parser = datetime.strptime('27 May 2015','%d %b %y')
 # print('parser = ',parser)
+timeStr = datetime.strftime(now,'%Y%m%d%H%M%S%s')
+print("timeStr = " ,timeStr[:-4])
