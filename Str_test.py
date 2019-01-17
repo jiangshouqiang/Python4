@@ -1,3 +1,6 @@
+urlStr = '@RequestMapping(path = "/{room_id}/from/{begin_date}/to/{end_date}/status")'
+print(urlStr.split(",")[0].replace('@RequestMapping(path = "',"").replace('")',''))
+
 import locale
 locale.setlocale(locale.LC_ALL,"")
 treatises = ['jiang','shou','qiang']
